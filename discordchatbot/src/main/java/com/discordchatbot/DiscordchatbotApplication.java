@@ -10,9 +10,10 @@ import java.util.EnumSet;
 
 public class DiscordchatbotApplication {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 		BotTokenManager tokenManager = context.getBean(BotTokenManager.class);
+		ChattingReaction chattingReaction = context.getBean(ChattingReaction.class);
 
 		EnumSet<GatewayIntent> intents = EnumSet.of(
 				GatewayIntent.GUILD_MESSAGES,
@@ -20,10 +21,11 @@ public class DiscordchatbotApplication {
 				GatewayIntent.MESSAGE_CONTENT,
 				GatewayIntent.GUILD_MEMBERS,
 				GatewayIntent.GUILD_VOICE_STATES);
+
 		String token = tokenManager.getBotToken();
 		JDA jda = net.dv8tion.jda.api.JDABuilder.createDefault(token)
 				.enableIntents(intents)
-				.addEventListeners(new ChattingReaction())
+				.addEventListeners(chattingReaction)
 				.build();
 	}
 }
