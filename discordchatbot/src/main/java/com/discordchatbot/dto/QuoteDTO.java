@@ -13,7 +13,6 @@ public class QuoteDTO {
     private String author;
 
     // Getters and setters
-
     public String getContent() {
         return content;
     }
