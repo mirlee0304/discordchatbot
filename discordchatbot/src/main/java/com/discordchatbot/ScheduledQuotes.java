@@ -21,17 +21,19 @@ public class ScheduledQuotes {
     @Autowired
     private JDA jda;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 10000)
     public void reportCurrentTime() {
+        logger.info("Scheduled task triggered");
         try {
             QuoteDTO quote = quoteController.getQuote();
-            String message = quote.getContent() + " - " + quote.getAuthor();
+            String message = "\"" + quote.getContent()+"\"" +'\n' + "-" + quote.getAuthor();
 
-            TextChannel generalChannel = jda.getTextChannelsByName("general", true).stream().findFirst().orElse(null);
+            TextChannel generalChannel = jda.getTextChannelsByName("일반", true).stream().findFirst().orElse(null);
             if (generalChannel != null) {
+                logger.info("Sending message to channel: {}", generalChannel.getName());
                 generalChannel.sendMessage(message).queue();
             } else {
-                logger.warn("No channel named 'general' found.");
+                logger.warn("No channel named '일반' found.");
             }
         } catch (Exception e) {
             logger.error("Failed to send scheduled quote", e);
