@@ -22,7 +22,6 @@ public class BotTokenManager {
             System.out.println("BOT_TOKEN successfully loaded from .env file.");
         }
     }
-
     public String getBotToken() {
         return botToken;
     }

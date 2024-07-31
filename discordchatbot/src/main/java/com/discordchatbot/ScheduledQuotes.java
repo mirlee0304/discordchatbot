@@ -21,7 +21,7 @@ public class ScheduledQuotes {
     @Autowired
     private JDA jda;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 600000)
     public void reportCurrentTime() {
         logger.info("Scheduled task triggered");
         try {

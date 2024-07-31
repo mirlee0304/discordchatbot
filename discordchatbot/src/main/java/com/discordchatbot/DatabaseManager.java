@@ -1,5 +1,6 @@
 package com.discordchatbot;
 
+import com.discordchatbot.dto.QuoteDTO;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.*;
@@ -36,8 +37,8 @@ public class DatabaseManager {
         }
     }
 
-    public static String getRandomQuote() {
-        String randomQuote = null;
+    public static QuoteDTO getRandomQuote() {
+        QuoteDTO randomQuote = null;
         try (Connection connection = getConnection();
              Statement statement = connection.createStatement()) {
 
@@ -45,9 +46,9 @@ public class DatabaseManager {
             ResultSet resultSet = statement.executeQuery(query);
 
             if (resultSet.next()) {
-                String quote = resultSet.getString("quote");
-                String author = resultSet.getString("author");
-                randomQuote = String.format("\"%s\" - %s", quote, author);
+                randomQuote = new QuoteDTO();
+                randomQuote.setContent(resultSet.getString("quote"));
+                randomQuote.setAuthor(resultSet.getString("author"));
             }
 
         } catch (SQLException e) {

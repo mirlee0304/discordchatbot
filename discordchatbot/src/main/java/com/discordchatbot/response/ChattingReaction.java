@@ -8,12 +8,13 @@ import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import java.util.Random;
 
 @Component
 public class ChattingReaction extends ListenerAdapter {
 
     private final QuoteController quoteController;
-    String manualMessage = "안녕하세요! 저는 랜덤 명언 출력 봇입니다. 사용법은 다음과 같습니다:\n" +
+    public String manualMessage = "안녕하세요! 저는 랜덤 명언 출력 봇입니다. 사용법은 다음과 같습니다:\n" +
             "1. '/명언' 명령어를 사용하여 랜덤 명언을 받습니다.\n" +
             "2. '/명언추가 author quote' 명령어를 사용하여 명언을 추가할 수 있습니다.\n" +
             "3. 채팅에 아무거나 입력하여 사용법을 다시 확인할 수 있습니다.\n";
@@ -22,6 +23,8 @@ public class ChattingReaction extends ListenerAdapter {
     public ChattingReaction(QuoteController quoteController) {
         this.quoteController = quoteController;
     }
+    // @Autowired는 Spring이 ChattingReaction 객체를 생성할 때,
+    // QuoteController 타입의 빈(Bean)을 자동으로 주입해주도록 지시
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -45,7 +48,15 @@ public class ChattingReaction extends ListenerAdapter {
                 }
             }
         } else if ("/명언".equals(message)) {
-            QuoteDTO quote = quoteController.getQuote();
+            Random random = new Random();
+            int num = random.nextInt(6);
+            QuoteDTO quote;
+            if (num <= 4) {
+                quote = quoteController.getQuote();
+            } else {
+                quote = DatabaseManager.getRandomQuote();
+            }
+
             if (quote != null && quote.getContent() != null && !quote.getContent().isEmpty()) {
                 event.getMessage().reply("\"" + quote.getContent() + "\"" + '\n' + "-" + quote.getAuthor()).queue();
             } else {
@@ -58,9 +69,8 @@ public class ChattingReaction extends ListenerAdapter {
 
     @Override
     public void onUserUpdateOnlineStatus(UserUpdateOnlineStatusEvent event) {
-        if (event.getUser().isBot()) {
+        if (event.getUser().isBot())
             return;
-        }
 
         if (event.getNewOnlineStatus() == OnlineStatus.ONLINE) {
             event.getUser().openPrivateChannel().queue(channel -> {
