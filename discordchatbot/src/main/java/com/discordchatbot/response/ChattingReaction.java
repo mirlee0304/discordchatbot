@@ -3,28 +3,35 @@ package com.discordchatbot.response;
 import com.discordchatbot.DatabaseManager;
 import com.discordchatbot.dto.QuoteDTO;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 import java.util.Random;
 
 @Component
 public class ChattingReaction extends ListenerAdapter {
 
     private final QuoteController quoteController;
-    public String manualMessage = "안녕하세요! 저는 랜덤 명언 출력 봇입니다. 사용법은 다음과 같습니다:\n" +
+    public String manualMessage = "안녕하세요! 저는 랜덤 명언 출력 봇입니다. 10분마다 랜덤 명언을 출력합니다. 사용법은 다음과 같습니다:\n" +
             "1. '/명언' 명령어를 사용하여 랜덤 명언을 받습니다.\n" +
             "2. '/명언추가 author quote' 명령어를 사용하여 명언을 추가할 수 있습니다.\n" +
             "3. 채팅에 아무거나 입력하여 사용법을 다시 확인할 수 있습니다.\n";
+
+    private static final Logger logger = LoggerFactory.getLogger(ChattingReaction.class);
 
     @Autowired
     public ChattingReaction(QuoteController quoteController) {
         this.quoteController = quoteController;
     }
-    // @Autowired는 Spring이 ChattingReaction 객체를 생성할 때,
-    // QuoteController 타입의 빈(Bean)을 자동으로 주입해주도록 지시
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -69,13 +76,28 @@ public class ChattingReaction extends ListenerAdapter {
 
     @Override
     public void onUserUpdateOnlineStatus(UserUpdateOnlineStatusEvent event) {
-        if (event.getUser().isBot())
-            return;
+        logger.info("User online status updated: {}", event.getUser().getName());
+        Guild guild = event.getGuild();
 
-        if (event.getNewOnlineStatus() == OnlineStatus.ONLINE) {
-            event.getUser().openPrivateChannel().queue(channel -> {
-                channel.sendMessage(manualMessage).queue();
-            });
+        if (guild == null) {
+            logger.warn("Guild is null for user: {}", event.getUser().getName());
+            return;
+        }
+
+        List<Member> users = guild.getMembers();
+        logger.info("Retrieved {} members from guild: {}", users.size(), guild.getName());
+
+        for (Member member : users) {
+            logger.info("Checking member: {}", member.getEffectiveName());
+            if (!member.getUser().isBot() && member.getOnlineStatus() == OnlineStatus.ONLINE) {
+                TextChannel channel = guild.getTextChannelById("1257540439490301984");
+                if (channel != null) {
+                    logger.info("Sending message to channel: {}", channel.getName());
+                    channel.sendMessage(manualMessage).queue();
+                } else {
+                    logger.warn("Text channel not found: 1257540439490301984");
+                }
+            }
         }
     }
 }

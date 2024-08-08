@@ -2,7 +2,10 @@ package com.discordchatbot;
 
 import com.discordchatbot.response.ChattingReaction;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +34,8 @@ public class AppConfig {
                 GatewayIntent.DIRECT_MESSAGES,
                 GatewayIntent.MESSAGE_CONTENT,
                 GatewayIntent.GUILD_MEMBERS,
-                GatewayIntent.GUILD_VOICE_STATES);
+                GatewayIntent.GUILD_VOICE_STATES,
+                GatewayIntent.GUILD_PRESENCES);
 
         String token = tokenManager.getBotToken();
         int retries = 0;
@@ -39,6 +43,8 @@ public class AppConfig {
             try {
                 return net.dv8tion.jda.api.JDABuilder.createDefault(token)
                         .enableIntents(intents)
+                        .setMemberCachePolicy(MemberCachePolicy.ALL)
+                        .enableCache(CacheFlag.ONLINE_STATUS)
                         .addEventListeners(chattingReaction)
                         .build();
             } catch (Exception e) {
