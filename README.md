@@ -19,3 +19,6 @@
    - 채팅에 아무거나 입력하여 사용법을 다시 확인할 수 있습니다.
 
 
+![앞부분gif](https://github.com/user-attachments/assets/0a324457-bfbf-4c4b-a6da-bc0d25c4e165)
+![뒷부분gif](https://github.com/user-attachments/assets/bab47adf-fbcb-42ea-b6a0-23aedf2ffbda)
+
